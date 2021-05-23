@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+function print_shortcuts() {
+    for i in "${!shortcuts[@]}"
+    do
+        echo $i
+    done
+}
+
+key=$1
+
+declare -A shortcuts
+shortcuts[intellij]="https://raw.githubusercontent.com/github/gitignore/master/Global/JetBrains.gitignore"
+shortcuts[golang]="https://raw.githubusercontent.com/github/gitignore/master/Go.gitignore"
+
+KEY=$1
+if [ -z $KEY ]; then
+    ME=$(basename ${BASH_SOURCE[0]})
+    echo "USAGE: $ME <gitignore shortcut>"
+    echo "EXAMPLE: $ME golang"
+    echo
+    echo "Shortcuts:"
+    print_shortcuts shortcuts
+    exit
+fi
+
+
+if [ ! ${shortcuts[$KEY]+_} ]; then
+    echo "Shortcut '$KEY' not found. Possible values:"
+    print_shortcuts $shortcuts
+    exit 1
+fi
+
+wget ${shortcuts[$KEY]} -q -O /tmp/tmp-gitignore
+
+echo Appending to .gitignore
+cat /tmp/tmp-gitignore >> .gitignore
