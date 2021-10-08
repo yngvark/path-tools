@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 function print_shortcuts() {
     for i in "${!shortcuts[@]}"
     do
@@ -11,6 +12,7 @@ key=$1
 declare -A shortcuts
 shortcuts[intellij]="https://raw.githubusercontent.com/github/gitignore/master/Global/JetBrains.gitignore"
 shortcuts[golang]="https://raw.githubusercontent.com/github/gitignore/master/Go.gitignore"
+shortcuts[node]="https://raw.githubusercontent.com/github/gitignore/master/Node.gitignore"
 
 KEY=$1
 if [ -z $KEY ]; then
@@ -23,14 +25,23 @@ if [ -z $KEY ]; then
     exit
 fi
 
-
 if [ ! ${shortcuts[$KEY]+_} ]; then
     echo "Shortcut '$KEY' not found. Possible values:"
     print_shortcuts $shortcuts
     exit 1
 fi
 
-wget ${shortcuts[$KEY]} -q -O /tmp/tmp-gitignore
+echo Appending $KEY stuff to .gitignore
 
-echo Appending to .gitignore
+rm -f /tmp/tmp-gitignore
+echo "# ----------------------------------------------------------------------------------------" >> /tmp/tmp-gitignore
+echo "# $KEY" >> /tmp/tmp-gitignore
+echo "# ----------------------------------------------------------------------------------------" >> /tmp/tmp-gitignore
+
+wget ${shortcuts[$KEY]} -q -O /tmp/tmp-gitignore-wget
+
+cat /tmp/tmp-gitignore-wget >> /tmp/tmp-gitignore
+
 cat /tmp/tmp-gitignore >> .gitignore
+
+printf '\n' >> .gitignore
