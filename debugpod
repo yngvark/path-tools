@@ -42,5 +42,5 @@ spec:
     image: yngvark/linuxtools
 EOF
 
-kubectl $NAMESPACE_ARGS wait --for=condition=ready pod -l app=debugger-pod --timeout 60s
+kubectl $NAMESPACE_ARGS wait --for=condition=ready pod -l app=debugger-pod --timeout 300s
 kubectl $NAMESPACE_ARGS exec -it debugger-pod -- bash && (kubectl delete pod debugger-pod || true)
