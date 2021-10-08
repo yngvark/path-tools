@@ -18,17 +18,18 @@ if [[ $* == "-h" ]]; then
   exit 0
 fi
 
-
+NAMESPACE_ARGS=""
 if [[ $1 == "-n" ]]; then
   if [[ -z $2 ]]; then
       usage
       exit 0
   fi
 
+  NAMESPACE_ARGS="-n $2"
 fi
 
 
-cat << EOF | kubectl apply -f -
+cat << EOF | kubectl $NAMESPACE_ARGS apply -f -
 kind: Pod
 apiVersion: v1
 metadata:
@@ -41,5 +42,5 @@ spec:
     image: yngvark/linuxtools
 EOF
 
-kubectl wait --for=condition=ready pod -l app=debugger-pod
-kubectl exec -it debugger-pod -- bash && (kubectl delete pod debugger-pod || true)
+kubectl $NAMESPACE_ARGS wait --for=condition=ready pod -l app=debugger-pod
+kubectl $NAMESPACE_ARGS exec -it debugger-pod -- bash && (kubectl delete pod debugger-pod || true)
