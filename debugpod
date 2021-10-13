@@ -1,15 +1,38 @@
 #!/usr/bin/env bash
 
+#function usage() {
+#  ME=$(basename $0)
+#    echo "Executes a pod for debugging purposes"
+#    echo ""
+#    echo "USAGE:"
+#    echo "$ME [-n [namespace]]"
+#    echo ""
+#    echo "EXAMPLES:"
+#    echo "$ME"
+#    echo "$ME -n mynamespace"
+#    return 0 2> /dev/null || exit 0
+#}
+
+NAMESPACE_ARGS=""
+#if [[ $1 == "-n" ]]; then
+#  if [[ -z $2 ]]; then
+#      usage
+#      exit 0
+#  fi
+#
+#  NAMESPACE_ARGS="-n $2"
+#fi
+
 function usage() {
   ME=$(basename $0)
     echo "Executes a pod for debugging purposes"
     echo ""
     echo "USAGE:"
-    echo "$ME [-n [namespace]]"
+    echo "$ME -a name"
     echo ""
     echo "EXAMPLES:"
     echo "$ME"
-    echo "$ME -n mynamespace"
+    echo "$ME -a something"
     return 0 2> /dev/null || exit 0
 }
 
@@ -18,29 +41,26 @@ if [[ $* == "-h" ]]; then
   exit 0
 fi
 
-NAMESPACE_ARGS=""
-if [[ $1 == "-n" ]]; then
+ME=$(whoami)
+POD_NAME="debug-pod-$ME"
+
+if [[ $1 == "-a" ]]; then
   if [[ -z $2 ]]; then
       usage
       exit 0
   fi
 
-  NAMESPACE_ARGS="-n $2"
+  POD_NAME="$2"
 fi
 
 
-cat << EOF | kubectl $NAMESPACE_ARGS apply -f -
-kind: Pod
-apiVersion: v1
-metadata:
-  name: debugger-pod
-  labels:
-    app: debugger-pod
-spec:
-  containers:
-  - name: debugger
-    image: yngvark/linuxtools
-EOF
+TEMPLATE_FILE=$(realpath $(dirname $0))/pod.yaml
+YAML_FILE="/tmp/debugger-$POD_NAME.yaml"
+sed "s/\$POD_NAME/$POD_NAME/" $TEMPLATE_FILE > $YAML_FILE
 
-kubectl $NAMESPACE_ARGS wait --for=condition=ready pod -l app=debugger-pod --timeout 300s
-kubectl $NAMESPACE_ARGS exec -it debugger-pod -- bash && (kubectl delete pod debugger-pod || true)
+kubectl $NAMESPACE_ARGS apply -f $YAML_FILE
+
+kubectl $NAMESPACE_ARGS wait --for=condition=ready pod -l app=$POD_NAME --timeout 300s
+kubectl $NAMESPACE_ARGS exec -it "$POD_NAME" -- bash
+
+kubectl $NAMESPACE_ARGS delete -f $YAML_FILE || true

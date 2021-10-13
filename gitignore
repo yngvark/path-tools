@@ -10,8 +10,8 @@ function print_shortcuts() {
 key=$1
 
 declare -A shortcuts
-shortcuts[intellij]="https://raw.githubusercontent.com/github/gitignore/master/Global/JetBrains.gitignore"
-shortcuts[golang]="https://raw.githubusercontent.com/github/gitignore/master/Go.gitignore"
+shortcuts[intellij]="https://raw.githubusercontent.com/TigerC10/gitignore/updating-jetbrains-sonarlint-plugin/Global/JetBrains.gitignore"
+shortcuts[golang]="https://raw.githubusercontent.com/yngvark/gitignore/master/Go.gitignore"
 shortcuts[node]="https://raw.githubusercontent.com/github/gitignore/master/Node.gitignore"
 
 KEY=$1
